@@ -39,6 +39,7 @@ export const fetchData = createAsyncThunk(
   "movieData/fetchData",
   async (_, { getState }) => {
     const { searchProp } = (getState() as RootState).movieData;
+
     let request = `http://www.omdbapi.com/?apikey=${API_KEY}`;
     if (searchProp.title) {
       request += `&s=${searchProp.title}`;
@@ -54,7 +55,7 @@ export const fetchData = createAsyncThunk(
     }
 
     const response = await axios.get(request);
-    console.log("response", response);
+
     if (response.data && response.data.Search) {
       return {
         movies: response.data.Search.map((movie: any) => ({

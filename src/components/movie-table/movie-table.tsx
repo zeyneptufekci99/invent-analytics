@@ -21,6 +21,12 @@ const MovieTable = () => {
     { value: "series", label: "TV series" },
     { value: "episode", label: "TV series episodes" },
   ];
+
+  const typeString = {
+    movie: "Movies",
+    series: "TV series",
+    episode: "TV series episodes",
+  };
   const dispatch = useAppDispatch();
   const { data, loading, searchProp, totalResults } = useAppSelector(
     (state) => state.movieData
@@ -51,16 +57,14 @@ const MovieTable = () => {
   );
 
   const debouncedOnYearChange = useRef(
-    debounce((value: string) => {
-      if (value.length >= 4) {
-        dispatch(fetchData());
-      }
+    debounce(() => {
+      dispatch(fetchData());
     }, 300)
   ).current;
 
   const handleYearInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      debouncedOnYearChange(e.target.value);
+      debouncedOnYearChange();
 
       dispatch(
         updateSearchProp({
@@ -107,7 +111,6 @@ const MovieTable = () => {
 
   const onTypeChange = (value: string) => {
     if (value === searchProp.type) {
-      console.log("here");
       dispatch(
         updateSearchProp({
           ...searchProp,
@@ -260,7 +263,9 @@ const MovieTable = () => {
                         onClick={() => handleRowClick(movie.imdbID)}
                       >
                         <td className="py-2 px-4 text-left">{movie.name}</td>
-                        <td className="py-2 px-4">{movie.type}</td>
+                        <td className="py-2 px-4">
+                          {typeString[movie.type as keyof typeof typeString]}
+                        </td>
                         <td className="py-2 px-4">{movie.year}</td>
                         <td className="py-2 px-4">{movie.imdbID}</td>
                       </tr>

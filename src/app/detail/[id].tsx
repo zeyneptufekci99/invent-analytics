@@ -48,27 +48,33 @@ export const Detail = () => {
     <div className="w-full h-full bg-gray">
       <Header />
       <DetailHeader {...detailHeaderItem} />
-      <div className="bg-secondary-grey p-4 sm:p-6">
-        <p className="text-lg text-black">{data.plot} </p>
-      </div>
+      {data.plot !== "N/A" && (
+        <div className="bg-secondary-grey p-4 sm:p-6">
+          <p className="text-lg text-black">{data.plot} </p>
+        </div>
+      )}
       <div className="p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="bg-deep p-4 w-full">
-          <p className="sm:text-xl text-lg underline text-white">Actors</p>
-          {actorList.map((actor) => (
-            <p className="sm:text-lg text-md text-white" key={actor}>
-              {actor}
-            </p>
-          ))}
-        </div>
+        {data.cast !== "N/A" && (
+          <div className="bg-deep p-4 w-full">
+            <p className="sm:text-xl text-lg underline text-white">Actors</p>
+            {actorList.map((actor) => (
+              <p className="sm:text-lg text-md text-white" key={actor}>
+                {actor}
+              </p>
+            ))}
+          </div>
+        )}
 
-        <div className="bg-deep  p-4 w-full">
-          <p className="sm:text-xl text-lg  underline text-white">Writers</p>
-          {writerList.map((writer) => (
-            <p className="sm:text-lg text-md text-white" key={writer}>
-              {writer}
-            </p>
-          ))}
-        </div>
+        {data.writer !== "N/A" && (
+          <div className="bg-deep  p-4 w-full">
+            <p className="sm:text-xl text-lg  underline text-white">Writers</p>
+            {writerList.map((writer) => (
+              <p className="sm:text-lg text-md text-white" key={writer}>
+                {writer}
+              </p>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
