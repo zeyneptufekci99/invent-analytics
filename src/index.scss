@@ -1,5 +1,10 @@
 $background-color: #EEEEEE;
 
+html, body{
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
 body {
   background-color: $background-color;
   margin: 0;
@@ -8,6 +13,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+#root {
+  height: 100%;
+  width: 100%;
 }
 
 code {

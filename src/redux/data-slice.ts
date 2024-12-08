@@ -1,23 +1,27 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import { IMovieTableData } from "../components/movie-table/movie-table.type";
+import { RootState } from "./store";
+import { API_KEY } from "../utils/contants";
 
-const API_KEY = "YOUR_OMDB_API_KEY"; // Replace with your actual API key
+export interface SearchProp {
+  title: string;
+  type?: string;
+  year?: string;
+  page?: number;
+  imdbID?: string;
+}
 
-export const fetchData = createAsyncThunk("movieData/fetchData", async () => {
-  const response = await axios.get(`http://www.omdbapi.com/?s=movie`);
-  return response.data.Search.map(
-    (movie: any): IMovieTableData => ({
-      name: movie.Title,
-      releaseDate: movie.Year,
-      imdbID: movie.imdbID,
-    })
-  );
-});
-
+const initialSeachState: SearchProp = {
+  title: "Pokemon",
+  type: undefined,
+  year: undefined,
+  page: 1,
+  imdbID: undefined,
+};
 export interface MovieDataState {
-  data: IMovieTableData[];
+  data: [];
   loading: boolean;
+  searchProp: SearchProp;
   error: string | null;
 }
 
@@ -25,22 +29,64 @@ const initialState: MovieDataState = {
   data: [],
   loading: false,
   error: null,
+  searchProp: initialSeachState,
 };
+
+export const fetchData = createAsyncThunk(
+  "movieData/fetchData",
+  async (_, { getState }) => {
+    const { searchProp } = (getState() as RootState).movieData;
+    let request = `http://www.omdbapi.com/?apikey=${API_KEY}`;
+    if (searchProp.title) {
+      request += `&s=${searchProp.title}`;
+    }
+    if (searchProp.type) {
+      request += `&type=${searchProp.type}`;
+    }
+    if (searchProp.year) {
+      request += `&y=${searchProp.year}`;
+    }
+    if (searchProp.page) {
+      request += `&page=${searchProp.page}`;
+    }
+
+    const response = await axios.get(request);
+    console.log("response", response);
+    if (response.data) {
+      return response.data.Search.map((movie: any) => ({
+        name: movie.Title,
+        year: movie.Year,
+        imdbID: movie.imdbID,
+        type: movie.Type,
+      }));
+    } else {
+      return [];
+    }
+  }
+);
 
 const movieDataSlice = createSlice({
   name: "movieData",
   initialState,
-  reducers: {},
+  reducers: {
+    updateSearchProp: (state, action: PayloadAction<SearchProp>) => {
+      state.searchProp = action.payload;
+    },
+    resetSearch: () => {
+      return initialState;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchData.pending, (state) => {
+        state.data = [];
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchData.fulfilled, (state, action) => {
         state.loading = false;
         state.data = action.payload;
-        state.error = null;
+        state.error = action.payload.Error;
       })
       .addCase(fetchData.rejected, (state, action) => {
         state.loading = false;
@@ -49,5 +95,5 @@ const movieDataSlice = createSlice({
       });
   },
 });
-
+export const { resetSearch, updateSearchProp } = movieDataSlice.actions;
 export default movieDataSlice.reducer;
