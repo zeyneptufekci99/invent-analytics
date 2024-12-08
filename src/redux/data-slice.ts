@@ -18,11 +18,13 @@ const initialSeachState: SearchProp = {
   page: 1,
   imdbID: undefined,
 };
+
 export interface MovieDataState {
   data: [];
   loading: boolean;
   searchProp: SearchProp;
   error: string | null;
+  totalResults: number;
 }
 
 const initialState: MovieDataState = {
@@ -30,6 +32,7 @@ const initialState: MovieDataState = {
   loading: false,
   error: null,
   searchProp: initialSeachState,
+  totalResults: 0,
 };
 
 export const fetchData = createAsyncThunk(
@@ -52,15 +55,21 @@ export const fetchData = createAsyncThunk(
 
     const response = await axios.get(request);
     console.log("response", response);
-    if (response.data) {
-      return response.data.Search.map((movie: any) => ({
-        name: movie.Title,
-        year: movie.Year,
-        imdbID: movie.imdbID,
-        type: movie.Type,
-      }));
+    if (response.data && response.data.Search) {
+      return {
+        movies: response.data.Search.map((movie: any) => ({
+          name: movie.Title,
+          year: movie.Year,
+          imdbID: movie.imdbID,
+          type: movie.Type,
+        })),
+        totalResults: parseInt(response.data.totalResults, 10) || 0,
+      };
     } else {
-      return [];
+      return {
+        movies: [],
+        totalResults: 0,
+      };
     }
   }
 );
@@ -82,18 +91,22 @@ const movieDataSlice = createSlice({
         state.data = [];
         state.loading = true;
         state.error = null;
+        state.totalResults = 0;
       })
       .addCase(fetchData.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload;
-        state.error = action.payload.Error;
+        state.data = action.payload.movies;
+        state.totalResults = action.payload.totalResults;
+        state.error = null;
       })
       .addCase(fetchData.rejected, (state, action) => {
         state.loading = false;
         state.data = [];
+        state.totalResults = 0;
         state.error = action.error.message || "An error occurred";
       });
   },
 });
+
 export const { resetSearch, updateSearchProp } = movieDataSlice.actions;
 export default movieDataSlice.reducer;

@@ -17,7 +17,7 @@ export const DetailHeader = ({
       style={{ backgroundImage: `url(${imageUrl})` }}
       className="w-full p-6 flex flex-row items-center justify-start gap-4 bg-cover bg-center h-80 bg-lavendar sm:p-4 relative"
     >
-      <div className="absolute inset-0 bg-black opacity-70"></div>
+      <div className="absolute inset-0 bg-black opacity-80"></div>
       <img
         src={imageUrl}
         className="border border-white w-36 h-[216px]  sm:w-40 sm:h-60 z-20"
